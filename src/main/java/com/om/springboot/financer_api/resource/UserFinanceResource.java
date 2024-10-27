@@ -1,5 +1,8 @@
 package com.om.springboot.financer_api.resource;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,9 +37,37 @@ public class UserFinanceResource {
 	}
 	
 	@GetMapping("/users/{id}/farm")
-	public List<Farm> getFarmExpense(@PathVariable int id){
+	public ResponseEntity<List<String>> getFarmExpense(@PathVariable int id){
 		Optional<Users> users = userRepository.findById(id);
-		return users.get().getFarm();
+		
+		List<Farm> farm = users.get().getFarm();
+		
+		// Initialize total variables
+	    float totalLabour = 0;
+	    float totalFertilizer = 0;
+	    float totalPesticides = 0;
+	    float totalSeeds = 0;
+	    
+	    // Sum up each expense type across all farm entries
+	    for (Farm farms : farm) {
+	        totalLabour += farm.get(0).getLabour();
+	        totalFertilizer += farm.get(0).getFertilizer();
+	        totalPesticides += farm.get(0).getPesticides();
+	        totalSeeds += farm.get(0).getSeeds();
+	    }
+	    
+	    float totalExpense = totalLabour + totalFertilizer + totalPesticides + totalSeeds;
+	    
+	    final DecimalFormat df = new DecimalFormat("0.00");
+	    df.setRoundingMode(RoundingMode.UP);
+	    
+	    // Calculate percentage for each type
+	    String labourPercentage = (df.format((totalLabour / totalExpense) * 100));
+	    String fertilizerPercentage = df.format((totalFertilizer / totalExpense) * 100);
+	    String pesticidesPercentage = df.format((totalPesticides / totalExpense) * 100);
+	    String seedsPercentage = df.format((totalSeeds / totalExpense) * 100); 
+		
+		return ResponseEntity.ok(Arrays.asList(labourPercentage, fertilizerPercentage, pesticidesPercentage, seedsPercentage));
 	}
 	
 	@GetMapping("/users/{name}")
@@ -50,6 +81,7 @@ public class UserFinanceResource {
 				.orElseThrow(() -> new RuntimeException("User not found"));
 		farm.setUsers(users);
 		farmRepository.save(farm);
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body("Farm expense added successfully");
 	}
 	

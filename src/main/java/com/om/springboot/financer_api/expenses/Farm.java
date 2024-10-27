@@ -1,5 +1,7 @@
 package com.om.springboot.financer_api.expenses;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.om.springboot.financer_api.users.Users;
 
@@ -25,19 +27,21 @@ public class Farm {
 	private float fertilizer;
 	private float pesticides;
 	private float seeds;
+	private LocalDate date;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "users_id") // Ensure this annotation is used to set the correct foreign key
 	@JsonIgnore
 	private Users users;
 	
-	public Farm(int id, float labour, float fertilizer, float pesticides, float seeds, Users users) {
+	public Farm(int id, float labour, float fertilizer, float pesticides, float seeds, LocalDate date, Users users) {
 		super();
 		this.id = id;
 		this.labour = labour;
 		this.fertilizer = fertilizer;
 		this.pesticides = pesticides;
 		this.seeds = seeds;
+		this.date = date;
 		this.users = users;
 	}
 	
@@ -87,6 +91,14 @@ public class Farm {
 
 	public void setSeeds(float seeds) {
 		this.seeds = seeds;
+	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
 	}
 
 	@Override
